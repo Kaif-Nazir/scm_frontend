@@ -1,0 +1,187 @@
+.scm-contact-list .list-group-item {
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.scm-contact-row {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.scm-contact-row .fw-semibold {
+  color: var(--color-ink);
+}
+
+.scm-fav-toggle {
+  border: none;
+  background: transparent;
+  color: color-mix(in srgb, #d84a4a 65%, var(--color-ink));
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.scm-fav-toggle.is-active {
+  color: #d84a4a;
+}
+
+.scm-fav-toggle:hover {
+  color: color-mix(in srgb, #d84a4a 85%, var(--color-ink));
+  transform: translateY(-1px);
+}
+
+.scm-contact-toggle {
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: left;
+}
+
+.scm-contact-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  color: var(--color-ink);
+}
+
+.scm-contact-row.is-open .scm-contact-chevron {
+  transform: rotate(180deg);
+}
+
+.scm-contact-panel {
+  animation: rise-in 0.2s ease-out both;
+}
+
+.scm-contact-panel a {
+  color: color-mix(in srgb, var(--color-accent) 70%, var(--color-ink));
+  text-decoration: none;
+}
+
+.scm-contact-panel a:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+
+.scm-contact-panel .btn-outline-primary,
+.scm-contact-panel .btn-outline-danger {
+  border-color: color-mix(in srgb, var(--color-ink) 45%, var(--color-border));
+  color: var(--color-ink);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+.scm-contact-panel .btn-outline-primary:hover,
+.scm-contact-panel .btn-outline-danger:hover {
+  background: color-mix(in srgb, var(--color-accent) 32%, transparent);
+  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-border));
+  color: var(--color-ink);
+}
+
+/*.scm-social-grid {
+  display: grid;
+  gap: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.6rem;
+  padding: 0.6rem;
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}
+
+.scm-social-grid__row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 2fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed color-mix(in srgb, var(--color-border) 70%, transparent);
+}
+
+.scm-social-grid__row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.scm-social-grid__title {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.scm-social-grid__link {
+  color: color-mix(in srgb, var(--color-accent) 70%, var(--color-ink));
+  word-break: break-all;
+  justify-self: end;
+  width: fit-content;
+  cursor: pointer;
+  position: relative;
+}*/
+.scm-social-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* Collapsed pill */
+.scm-social-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  justify-content: center;
+
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;              /* curved ends */
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+
+  max-width: 110px;                  /* collapsed width */
+  overflow: hidden;                  /* 🔑 */
+  cursor: pointer;
+
+  transition:
+          max-width 0.25s ease,
+          box-shadow 0.25s ease,
+          transform 0.25s ease;
+}
+
+.scm-social-pill__title {
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-ink);
+  text-align: center;
+  flex: 1;
+}
+
+/* Hidden content */
+.scm-social-pill__link {
+  display: none;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+/* Expanded state */
+.scm-social-pill:hover,
+.scm-social-pill:focus-within {
+  max-width: 360px;                  /* expanded size */
+  box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.scm-social-pill:hover .scm-social-pill__link,
+.scm-social-pill:focus-within .scm-social-pill__link {
+  display: inline;
+  font-size: 1rem;
+}
+
+.scm-social-pill:hover .scm-social-pill__title,
+.scm-social-pill:focus-within .scm-social-pill__title {
+  display: none;
+}

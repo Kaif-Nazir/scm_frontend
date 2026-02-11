@@ -1,0 +1,161 @@
+.scm-dashboard-cta {
+  position: relative;
+  display: inline-block;
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  color: #0ef;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: 1px solid color-mix(in srgb, #0ef 70%, transparent);
+  padding: 12px 34px;
+  z-index: 1;
+  overflow: hidden;
+  background: linear-gradient(
+    120deg,
+    rgba(0, 238, 255, 0.08),
+    rgba(0, 238, 255, 0.02)
+  );
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 24px rgba(0, 238, 255, 0.12);
+  transition: color 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+}
+
+.btn.scm-dashboard-cta {
+  border: none;
+  color: #0ef;
+  border-left: 1px solid cyan;
+  border-right: 1px solid cyan;
+  font-weight: 600 !important;
+  transition:
+    color 0.35s ease,
+    transform 0.25s ease,
+    box-shadow 0.35s ease,
+    background-color 0.35s ease;
+}
+
+.btn.scm-dashboard-cta:hover {
+  color: #000 !important;
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 8px rgba(0, 238, 255, 0.5),
+    0 0 18px rgba(0, 238, 255, 0.5),
+    0 12px 28px rgba(0, 238, 255, 0.25);
+}
+
+.btn.btn-outline-primary.scm-dashboard-cta:hover {
+  background-color: #26d2b1 !important;
+  border-color: transparent !important;
+}
+
+.scm-dashboard-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60px;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    #bffbff,
+    #5ad6df
+  );
+  transform: skewX(25deg);
+  background-size: 300% 100%;
+  animation: color-shift 3s reverse linear infinite;
+  z-index: -1;
+  transition: width 0.5s linear; /* hover */
+}
+
+@keyframes color-shift {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 300% 0;
+  }
+}
+
+.scm-dashboard-cta:hover::before {
+  width: 90%;
+}
+
+.app--light .scm-dashboard-cta {
+  color: var(--color-ink);
+  border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--color-accent) 10%, transparent),
+    color-mix(in srgb, var(--color-accent) 3%, transparent)
+  );
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+}
+
+.app--light .scm-dashboard-cta::before {
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--color-accent) 45%, #ffffff),
+    color-mix(in srgb, var(--color-accent) 18%, #ffffff)
+  );
+}
+
+.app--light .btn.scm-dashboard-cta:hover {
+  color: #1b1a17 !important;
+  box-shadow: 0 0 10px rgba(47, 143, 131, 0.2), 0 10px 20px rgba(0, 0, 0, 0.14);
+}
+
+.card.scm-stat {
+  background-color: var(--color-surface) !important;
+  background-image: none !important;
+  backdrop-filter: none;
+  border: 1px solid var(--color-border) !important;
+}
+
+.app--dark .card.scm-stat {
+  background-color: var(--color-surface) !important;
+  background-image: none !important;
+  border-color: var(--color-border) !important;
+}
+
+.scm-dashboard-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  min-height: 55vh;
+}
+
+.scm-dashboard-center .row {
+  width: 100%;
+}
+
+.scm-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.scm-dashboard-header h2 {
+  margin: 0;
+}
+
+.scm-dashboard-clock {
+  color: #0ef;
+  font-size: 1.2rem;
+  letter-spacing: 0.18em;
+  font-weight: 600;
+  border: 1px solid rgba(0, 238, 255, 0.6);
+  border-radius: 999px;
+  padding: 0.35rem 1.25rem;
+  display: inline-block;
+  box-shadow: 0 0 12px rgba(0, 238, 255, 0.3);
+}
+
+.app--light .scm-dashboard-clock {
+  color: #000;
+  border-color: rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+}
