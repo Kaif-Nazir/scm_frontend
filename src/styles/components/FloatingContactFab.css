@@ -1,0 +1,213 @@
+.scm-contact-floating {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 1100;
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  overflow: visible;
+}
+
+.scm-contact-floating .button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #06b6d4, #14b8a6);
+  color: #fff;
+  padding: 14px 22px;
+  border-radius: 50px;
+  cursor: pointer;
+  border: 0;
+  transition:
+    background 0.35s ease,
+    transform 0.25s ease,
+    box-shadow 0.35s ease;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.14);
+  position: relative;
+  overflow: hidden;
+}
+
+.scm-contact-floating .button-content::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.45), rgba(20, 184, 166, 0.45));
+  filter: blur(15px);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: -1;
+}
+
+.scm-contact-floating .button-content:hover::before {
+  opacity: 1;
+}
+
+.scm-contact-floating .button-content:hover {
+  background: linear-gradient(135deg, #14b8a6, #06b6d4);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
+  transform: translateY(-3px) scale(1.02);
+}
+
+.scm-contact-floating .button-content:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.scm-contact-floating .text {
+  font-size: 16px;
+  font-weight: 700;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+.scm-contact-floating .share-icon {
+  fill: currentColor;
+  transition: transform 0.35s ease;
+}
+
+.scm-contact-floating.is-open .share-icon {
+  transform: rotate(180deg);
+}
+
+.scm-contact-floating .tooltip-content {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  transform: translateY(8px) scale(0.88);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease,
+    visibility 0.35s ease;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.92);
+  border: 1px solid rgba(34, 211, 238, 0.26);
+}
+
+.scm-contact-floating.is-open .tooltip-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.scm-contact-floating .tooltip-content::before {
+  content: '';
+  position: absolute;
+  right: 20px;
+  bottom: -10px;
+  border-width: 10px 10px 0 10px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.92) transparent transparent transparent;
+}
+
+.scm-contact-floating .social-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.scm-contact-floating .social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #0d0d0d;
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(8px);
+  border: 1px solid rgba(34, 211, 238, 0.15);
+}
+
+.scm-contact-floating.is-open .social-icon {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(var(--scm-contact-index, 1) * 45ms);
+}
+
+.scm-contact-floating .social-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: #67e8f9;
+  transition: transform 0.25s ease, fill 0.25s ease;
+}
+
+.scm-contact-floating .social-icon:hover {
+  transform: translateY(-3px) scale(1.08);
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.scm-contact-floating .social-icon:hover svg {
+  transform: scale(1.12);
+  fill: #001014;
+}
+
+.scm-contact-floating .social-icon.email:hover {
+  background: linear-gradient(135deg, #67e8f9, #06b6d4);
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.35),
+    0 0 24px rgba(34, 211, 238, 0.45);
+}
+
+.scm-contact-floating .social-icon.linkedin:hover {
+  background: linear-gradient(135deg, #2dd4bf, #14b8a6);
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.35),
+    0 0 24px rgba(45, 212, 191, 0.42);
+}
+
+.scm-contact-floating .social-icon.github:hover {
+  background: linear-gradient(135deg, #22d3ee, #2dd4bf);
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.35),
+    0 0 24px rgba(34, 211, 238, 0.38);
+}
+
+@media (max-width: 576px) {
+  .scm-contact-floating {
+    right: 1rem;
+    bottom: 1rem;
+  }
+
+  .scm-contact-floating .button-content {
+    padding: 12px 18px;
+  }
+
+  .scm-contact-floating .text {
+    font-size: 14px;
+    margin-right: 8px;
+  }
+
+  .scm-contact-floating .social-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .scm-contact-floating .social-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scm-contact-floating .button-content,
+  .scm-contact-floating .share-icon,
+  .scm-contact-floating .social-icon,
+  .scm-contact-floating .tooltip-content {
+    transition: none;
+  }
+}

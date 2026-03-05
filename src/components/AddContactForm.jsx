@@ -5,10 +5,9 @@ const initialForm = {
   phoneNumber: '',
   email: '',
   address: '',
-  picture: '',
   description: '',
   favourite: false,
-  linkedinLink: '',
+  linkedInLink: '',
 }
 
 function AddContactForm({ onSubmit }) {
@@ -22,11 +21,13 @@ function AddContactForm({ onSubmit }) {
     }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     if (onSubmit) {
-      onSubmit(form)
-      setForm(initialForm)
+      const isSuccess = await onSubmit(form)
+      if (isSuccess !== false) {
+        setForm(initialForm)
+      }
     }
   }
 
@@ -95,25 +96,11 @@ function AddContactForm({ onSubmit }) {
             <input
               className="form-control"
               id="contact-linkedin"
-              name="linkedinLink"
+              name="linkedInLink"
               type="url"
-              value={form.linkedinLink}
+              value={form.linkedInLink}
               onChange={handleChange}
               placeholder="https://linkedin.com/in/username"
-            />
-          </div>
-          <div className="col-12 col-md-6">
-            <label className="form-label fw-semibold" htmlFor="contact-picture">
-              Picture URL
-            </label>
-            <input
-              className="form-control"
-              id="contact-picture"
-              name="picture"
-              type="url"
-              value={form.picture}
-              onChange={handleChange}
-              placeholder="https://image-url"
             />
           </div>
           <div className="col-12 col-md-6">
@@ -138,24 +125,46 @@ function AddContactForm({ onSubmit }) {
               className="form-control"
               id="contact-description"
               name="description"
-              rows="3"
+              rows="2"
               value={form.description}
               onChange={handleChange}
               placeholder="Notes about this contact"
             />
           </div>
           <div className="col-12">
-            <div className="add-contact__toggle">
+            <div className="scm-favourite-card-wrap">
               <input
-                className="add-contact__toggle-input"
+                className="scm-favourite-card__input"
                 id="contact-favourite"
                 name="favourite"
                 type="checkbox"
                 checked={form.favourite}
                 onChange={handleChange}
               />
-              <label className="add-contact__toggle-label" htmlFor="contact-favourite">
-                Mark as favourite
+              <label className="scm-favourite-card" htmlFor="contact-favourite">
+                <svg
+                  className="scm-favourite-card__icon"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  strokeWidth="2"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  height="24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                <div className="scm-favourite-card__action">
+                  <span className="scm-favourite-card__text scm-favourite-card__text--add">
+                    Add to Favorites
+                  </span>
+                  <span className="scm-favourite-card__text scm-favourite-card__text--added">
+                    Added to Favorites
+                  </span>
+                </div>
               </label>
             </div>
           </div>

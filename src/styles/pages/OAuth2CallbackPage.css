@@ -1,0 +1,33 @@
+.scm-oauth-callback-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scm-oauth-callback-card {
+  width: min(560px, 100%);
+  background: color-mix(in srgb, var(--color-surface) 85%, #0f1114 15%);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  padding: 2rem;
+  text-align: center;
+}
+
+.scm-oauth-callback-card h1 {
+  margin-bottom: 0.75rem;
+}
+
+.scm-oauth-callback-card p {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.scm-oauth-callback-card button {
+  margin-top: 1.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-ink);
+  padding: 0.5rem 1rem;
+}

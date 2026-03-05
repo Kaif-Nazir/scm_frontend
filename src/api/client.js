@@ -1,13 +1,12 @@
 import axios from 'axios'
-
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+import { appEnv } from '../config/env.js'
 
 const apiClient = axios.create({
-  baseURL,
+  baseURL: appEnv.apiBaseUrl || undefined,
 })
 
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('scm_token')
+  const token = localStorage.getItem('scm_token') || sessionStorage.getItem('scm_token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }

@@ -1,47 +1,53 @@
 import { useEffect, useState } from 'react'
+import Icon from './Icon.jsx'
 
 const emptyForm = {
   name: '',
   phoneNumber: '',
   email: '',
   address: '',
-  picture: '',
   description: '',
   linkedInLink: '',
   favourite: false,
   socialLinks: [],
 }
 
+const normalizeSocialLink = (link) => {
+  const title = link?.title || ''
+  const socialLink = link?.socialLink || ''
+  const titleIsUrl = /^https?:\/\//i.test(title)
+  const linkIsUrl = /^https?:\/\//i.test(socialLink)
+  if (titleIsUrl && !linkIsUrl) {
+    return { title: socialLink, socialLink: title }
+  }
+  return { title, socialLink }
+}
+
+const buildForm = (initialData) => {
+  if (!initialData) {
+    return {
+      ...emptyForm,
+      socialLinks: [],
+    }
+  }
+  const rawLinks = initialData.socialLinksResponse || initialData.socialLinks || []
+  return {
+    name: initialData.name || '',
+    phoneNumber: initialData.phoneNumber || '',
+    email: initialData.email || '',
+    address: initialData.address || '',
+    description: initialData.description || '',
+    linkedInLink: initialData.linkedInLink || '',
+    favourite: Boolean(initialData.favourite),
+    socialLinks: rawLinks.map(normalizeSocialLink),
+  }
+}
+
 function UpdateContactForm({ initialData, onCancel, onSubmit }) {
-  const [form, setForm] = useState(emptyForm)
+  const [form, setForm] = useState(() => buildForm(initialData))
 
   useEffect(() => {
-    if (!initialData) {
-      setForm(emptyForm)
-      return
-    }
-    const normalizeSocialLink = (link) => {
-      const title = link?.title || ''
-      const socialLink = link?.socialLink || ''
-      const titleIsUrl = /^https?:\/\//i.test(title)
-      const linkIsUrl = /^https?:\/\//i.test(socialLink)
-      if (titleIsUrl && !linkIsUrl) {
-        return { title: socialLink, socialLink: title }
-      }
-      return { title, socialLink }
-    }
-    const rawLinks = initialData.socialLinksResponse || initialData.socialLinks || []
-    setForm({
-      name: initialData.name || '',
-      phoneNumber: initialData.phoneNumber || '',
-      email: initialData.email || '',
-      address: initialData.address || '',
-      picture: initialData.picture || '',
-      description: initialData.description || '',
-      linkedInLink: initialData.linkedInLink || '',
-      favourite: Boolean(initialData.favourite),
-      socialLinks: rawLinks.map(normalizeSocialLink),
-    })
+    setForm(buildForm(initialData))
   }, [initialData])
 
   const handleChange = (event) => {
@@ -82,159 +88,192 @@ function UpdateContactForm({ initialData, onCancel, onSubmit }) {
 
   return (
     <form className="scm-update-form" onSubmit={handleSubmit}>
-      <div className="row g-3">
-        <div className="col-12 col-md-6">
-          <label className="form-label fw-semibold" htmlFor="update-name">
-            Name
-          </label>
-          <input
-            className="form-control"
-            id="update-name"
-            name="name"
-            type="text"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
+      <div className="row g-3 scm-update-form-grid">
+        <div className="col-12 col-lg-7">
+          <div className="row g-2">
+            <div className="col-12 col-md-6">
+              <label className="form-label fw-semibold" htmlFor="update-name">
+                Name
+              </label>
+              <input
+                className="form-control"
+                id="update-name"
+                name="name"
+                type="text"
+                value={form.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="col-12 col-md-6">
+              <label className="form-label fw-semibold" htmlFor="update-phone">
+                Phone Number
+              </label>
+              <input
+                className="form-control"
+                id="update-phone"
+                name="phoneNumber"
+                type="tel"
+                value={form.phoneNumber}
+                onChange={handleChange}
+                minLength={10}
+                maxLength={10}
+                required
+              />
+            </div>
+            <div className="col-12 col-md-6">
+              <label className="form-label fw-semibold" htmlFor="update-email">
+                Email
+              </label>
+              <input
+                className="form-control"
+                id="update-email"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="col-12 col-md-6">
+              <label className="form-label fw-semibold" htmlFor="update-linkedin">
+                LinkedIn Link
+              </label>
+              <input
+                className="form-control"
+                id="update-linkedin"
+                name="linkedInLink"
+                type="url"
+                value={form.linkedInLink}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="col-12">
+              <label className="form-label fw-semibold" htmlFor="update-address">
+                Address
+              </label>
+              <input
+                className="form-control"
+                id="update-address"
+                name="address"
+                type="text"
+                value={form.address}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="col-12">
+              <label className="form-label fw-semibold" htmlFor="update-description">
+                Description
+              </label>
+              <textarea
+                className="form-control"
+                id="update-description"
+                name="description"
+                rows="3"
+                value={form.description}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="col-12">
+              <input
+                className="scm-favourite-card__input"
+                id="update-favourite"
+                name="favourite"
+                type="checkbox"
+                checked={form.favourite}
+                onChange={handleChange}
+              />
+              <label className="scm-favourite-card" htmlFor="update-favourite">
+                <svg
+                  className="scm-favourite-card__icon"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  strokeWidth="2"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  height="24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                <div className="scm-favourite-card__action">
+                  <span className="scm-favourite-card__text scm-favourite-card__text--add">
+                    Add to Favorites
+                  </span>
+                  <span className="scm-favourite-card__text scm-favourite-card__text--added">
+                    Added to Favorites
+                  </span>
+                </div>
+              </label>
+            </div>
+          </div>
         </div>
-        <div className="col-12 col-md-6">
-          <label className="form-label fw-semibold" htmlFor="update-phone">
-            Phone Number
-          </label>
-          <input
-            className="form-control"
-            id="update-phone"
-            name="phoneNumber"
-            type="tel"
-            value={form.phoneNumber}
-            onChange={handleChange}
-            minLength={10}
-            maxLength={10}
-            required
-          />
-        </div>
-        <div className="col-12 col-md-6">
-          <label className="form-label fw-semibold" htmlFor="update-email">
-            Email
-          </label>
-          <input
-            className="form-control"
-            id="update-email"
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="col-12 col-md-6">
-          <label className="form-label fw-semibold" htmlFor="update-linkedin">
-            LinkedIn Link
-          </label>
-          <input
-            className="form-control"
-            id="update-linkedin"
-            name="linkedInLink"
-            type="url"
-            value={form.linkedInLink}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="col-12">
-          <label className="form-label fw-semibold" htmlFor="update-address">
-            Address
-          </label>
-          <input
-            className="form-control"
-            id="update-address"
-            name="address"
-            type="text"
-            value={form.address}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="col-12">
-          <label className="form-label fw-semibold" htmlFor="update-description">
-            Description
-          </label>
-          <textarea
-            className="form-control"
-            id="update-description"
-            name="description"
-            rows="3"
-            value={form.description}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="col-12 d-flex align-items-center gap-2">
-          <input
-            className="form-check-input"
-            id="update-favourite"
-            name="favourite"
-            type="checkbox"
-            checked={form.favourite}
-            onChange={handleChange}
-          />
-          <label className="form-check-label fw-semibold" htmlFor="update-favourite">
-            Mark as favourite
-          </label>
+        <div className="col-12 col-lg-5 scm-update-social-col">
+          <div className="scm-update-social-panel">
+            <div className="d-flex align-items-center justify-content-between mb-1">
+              <h5 className="fw-semibold mb-0">Social Links</h5>
+              <button
+                className="btn btn-outline-primary btn-sm social-add-btn"
+                type="button"
+                onClick={addSocialLink}
+              >
+                Add Link
+              </button>
+            </div>
+            <div className="d-grid gap-3 scm-update-social-list">
+              {form.socialLinks.length === 0 ? (
+                <div className="text-muted">No social links added.</div>
+              ) : (
+                form.socialLinks.map((link, index) => (
+                  <div className="scm-social-editor-item" key={`social-${index}`}>
+                    <button
+                      className="social-remove-icon-btn"
+                      type="button"
+                      onClick={() => removeSocialLink(index)}
+                      aria-label={`Remove social link ${index + 1}`}
+                    >
+                      <Icon name="xmark" />
+                    </button>
+                    <div className="scm-social-editor-field">
+                      <label className="form-label small text-muted" htmlFor={`social-title-${index}`}>
+                        Title <span className="text-danger ms-1">*</span>
+                      </label>
+                      <input
+                        className="form-control"
+                        id={`social-title-${index}`}
+                        type="text"
+                        value={link.title}
+                        onChange={(event) => updateSocialLink(index, 'title', event.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="scm-social-editor-field">
+                      <label className="form-label small text-muted" htmlFor={`social-link-${index}`}>
+                        Link <span className="text-danger ms-1">*</span>
+                      </label>
+                      <input
+                        className="form-control"
+                        id={`social-link-${index}`}
+                        type="url"
+                        value={link.socialLink}
+                        onChange={(event) => updateSocialLink(index, 'socialLink', event.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       </div>
-      <div className="mt-4">
-        <div className="d-flex align-items-center justify-content-between mb-2">
-          <h5 className="fw-semibold mb-0">Social Links</h5>
-          <button className="btn btn-outline-primary btn-sm" type="button" onClick={addSocialLink}>
-            Add Link
-          </button>
-        </div>
-        <div className="d-grid gap-3">
-          {form.socialLinks.length === 0 ? (
-            <div className="text-muted">No social links added.</div>
-          ) : (
-            form.socialLinks.map((link, index) => (
-              <div className="row g-2 align-items-end" key={`social-${index}`}>
-                <div className="col-12 col-md-4">
-                  <label className="form-label small text-muted" htmlFor={`social-title-${index}`}>
-                    Title
-                  </label>
-                  <input
-                    className="form-control"
-                    id={`social-title-${index}`}
-                    type="text"
-                    value={link.title}
-                    onChange={(event) => updateSocialLink(index, 'title', event.target.value)}
-                  />
-                </div>
-                <div className="col-12 col-md-6">
-                  <label className="form-label small text-muted" htmlFor={`social-link-${index}`}>
-                    Link
-                  </label>
-                  <input
-                    className="form-control"
-                    id={`social-link-${index}`}
-                    type="url"
-                    value={link.socialLink}
-                    onChange={(event) => updateSocialLink(index, 'socialLink', event.target.value)}
-                  />
-                </div>
-                <div className="col-12 col-md-2">
-                  <button
-                    className="btn btn-outline-danger w-100"
-                    type="button"
-                    onClick={() => removeSocialLink(index)}
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-      <div className="d-flex flex-wrap gap-2 pt-3">
-        <button className="btn btn-primary" type="submit">
+      <div className="d-flex flex-wrap gap-2 pt-2 scm-update-form-actions">
+        <button className="btn btn-outline-primary edit_contact_btn" type="submit">
           Save Changes
         </button>
-        <button className="btn btn-ghost" type="button" onClick={onCancel}>
+        <button className="btn btn-outline-secondary cancel_contact_btn" type="button" onClick={onCancel}>
           Cancel
         </button>
       </div>

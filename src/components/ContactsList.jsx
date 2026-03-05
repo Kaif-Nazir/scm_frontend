@@ -1,15 +1,11 @@
-import { useEffect, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faChevronDown,
-  faHeart as faHeartSolid,
-  faXmark,
-} from '@fortawesome/free-solid-svg-icons'
-import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons'
+import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
+import Icon from './Icon.jsx'
 import '../styles/pages/ViewContactsPage.css'
 import UpdateContactForm from './UpdateContactForm.jsx'
 import ContactsSearch from './ContactsSearch.jsx'
 import apiClient from '../api/client.js'
+import { useAlert } from '../context/AlertContext.jsx'
 
 const normalizeUrl = (value) => {
   const trimmed = value?.trim()
@@ -37,6 +33,7 @@ const normalizeSocialLinkFields = (link) => {
 }
 
 function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited = false }) {
+  const { success, error: showError } = useAlert()
 
   const [activeId, setActiveId] = useState(null)
   const [editingId, setEditingId] = useState(null)
@@ -44,6 +41,7 @@ function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited =
   const [fullContactMap, setFullContactMap] = useState(fullContacts || {})
   const [searchTerm, setSearchTerm] = useState('')
   const [loadingContactIds, setLoadingContactIds] = useState({})
+  const [deleteConfirmContact, setDeleteConfirmContact] = useState(null)
 
   useEffect(() => {
     setContactList(contacts)
@@ -63,9 +61,9 @@ function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited =
       try {
         const response = await apiClient.get(`/api/getFullContact/${id}`)
         setFullContactMap((prev) => ({ ...(prev || {}), [id]: response.data }))
-        console.log(response);
       } catch (error) {
         console.error('Failed to load contact details.', error)
+        showError(error?.response?.data?.message || 'Failed to load contact details.')
       } finally {
         setLoadingContactIds((prev) => {
           const next = { ...prev }
@@ -80,12 +78,33 @@ function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited =
     setActiveId(nextId)
     if (nextId) {
       fetchFullContact(id)
+      requestAnimationFrame(() => {
+        const contentPane = document.querySelector('.scm-content')
+        const rowEl = document.getElementById(`contact-row-${id}`)
+        if (!contentPane || !rowEl) {
+          return
+        }
+        const contentRect = contentPane.getBoundingClientRect()
+        const rowRect = rowEl.getBoundingClientRect()
+        const targetTop = contentPane.scrollTop + (rowRect.top - contentRect.top) - 10
+        contentPane.scrollTo({ top: Math.max(targetTop, 0), behavior: 'smooth' })
+      })
     }
   }
 
   const toggleEdit = (event, id) => {
     event.stopPropagation()
-    setEditingId((prev) => (prev === id ? null : id))
+    setEditingId((prev) => {
+      const nextId = prev === id ? null : id
+      if (nextId) {
+        fetchFullContact(nextId)
+        const contentPane = document.querySelector('.scm-content')
+        if (contentPane && typeof contentPane.scrollTo === 'function') {
+          contentPane.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+      }
+      return nextId
+    })
   }
 
   const closeEdit = () => {
@@ -110,6 +129,7 @@ function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited =
       })
     } catch (error) {
       console.error('Failed to update favourite.', error)
+      showError(error?.response?.data?.message || 'Failed to update favourite.')
       setContactList((prev) =>
         prev.map((contact) =>
           contact.id === id ? { ...contact, favourite: previousIsFavourite } : contact,
@@ -148,13 +168,14 @@ function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited =
       )
       setFullContactMap((prev) => ({ ...(prev || {}), [editingId]: updated }))
       closeEdit()
+      success('Contact updated successfully.')
     } catch (error) {
       console.error('Failed to update contact.', error)
+      showError(error?.response?.data?.message || 'Failed to update contact.')
     }
   }
 
-  const handleDeleteContact = async (event, id) => {
-    event.stopPropagation()
+  const performDeleteContact = async (id) => {
     try {
       await apiClient.delete(`/api/deleteContact/${id}`)
       setContactList((prev) => prev.filter((contact) => contact.id !== id))
@@ -168,12 +189,43 @@ function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited =
       })
       setActiveId((prev) => (prev === id ? null : prev))
       setEditingId((prev) => (prev === id ? null : prev))
+      setDeleteConfirmContact((prev) => (prev?.id === id ? null : prev))
+      success('Contact deleted successfully.')
     } catch (error) {
       console.error('Failed to delete contact.', error)
+      showError(error?.response?.data?.message || 'Failed to delete contact.')
     }
   }
 
+  const requestDeleteContact = (event, contact) => {
+    event.stopPropagation()
+    setDeleteConfirmContact(contact)
+  }
+
+  const closeDeleteConfirm = () => {
+    setDeleteConfirmContact(null)
+  }
+
+  const confirmDeleteContact = async () => {
+    if (!deleteConfirmContact?.id) {
+      return
+    }
+    await performDeleteContact(deleteConfirmContact.id)
+  }
+
   const normalizedSearch = searchTerm.toLowerCase()
+  const editingContact = useMemo(() => {
+    if (!editingId) {
+      return null
+    }
+    const basicContact = contactList.find((contact) => contact.id === editingId) || {}
+    const fullContact = fullContactMap?.[editingId] || {}
+    return {
+      ...basicContact,
+      ...fullContact,
+    }
+  }, [editingId, contactList, fullContactMap])
+  const portalRoot = document.body
   const filteredContacts = contactList.filter((contact) => {
     if (hideUnfavourited && !contact.favourite) {
       return false
@@ -188,17 +240,20 @@ function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited =
     return haystack.includes(normalizedSearch)
   })
 
-
   return (
-    <div className="card shadow-sm border-0">
-      <div className="card-body">
-        <div className="d-flex align-items-center justify-content-between mb-3">
+    <div className="scm-contacts-card">
+      <div className="scm-contacts-card__body">
+        <div className="d-flex align-items-center justify-content-between mb-3 scm-contacts-header">
           <h3 className="fw-semibold mb-0">{title}</h3>
-          <span className="text-muted small">
+          <span className="text-muted small scm-contacts-count">
             {filteredContacts.length} of {contactList.length}
           </span>
         </div>
-        <ContactsSearch onSearch={setSearchTerm} />
+        <ContactsSearch
+          onSearch={setSearchTerm}
+          className="scm-contacts-search"
+          inputClassName="scm-contacts-search__input"
+        />
         <div className="list-group scm-contact-list">
           {filteredContacts.map((contact) => {
             const isOpen = activeId === contact.id
@@ -208,6 +263,7 @@ function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited =
             return (
               <div
                 key={contact.id}
+                id={`contact-row-${contact.id}`}
                 className={`list-group-item scm-contact-row${isOpen ? ' is-open' : ''}`}
               >
                 <div
@@ -234,10 +290,10 @@ function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited =
                       aria-pressed={contact.favourite}
                       aria-label={contact.favourite ? 'Remove from favourites' : 'Add to favourites'}
                     >
-                      <FontAwesomeIcon icon={contact.favourite ? faHeartSolid : faHeartRegular} />
+                      <Icon name={contact.favourite ? 'heart-filled' : 'heart'} />
                     </button>
                     <span className="scm-contact-chevron" aria-hidden="true">
-                      <FontAwesomeIcon icon={faChevronDown} />
+                      <Icon name="chevron-down" />
                     </span>
                   </div>
                 </div>
@@ -308,16 +364,16 @@ function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited =
                         </div>
                         <div className="col-12 d-flex flex-wrap gap-2 pt-2">
                           <button
-                            className="btn btn-outline-primary"
+                            className="btn btn-outline-primary edit_contact_btn"
                             type="button"
                             onClick={(event) => toggleEdit(event, contact.id)}
                           >
                             Edit
                           </button>
                           <button
-                            className="btn btn-outline-danger"
+                            className="btn btn-outline-danger delete_contact_btn"
                             type="button"
-                            onClick={(event) => handleDeleteContact(event, contact.id)}
+                            onClick={(event) => requestDeleteContact(event, contact)}
                           >
                             Delete
                           </button>
@@ -332,27 +388,62 @@ function ContactsList({ title, contacts, fullContacts = null, hideUnfavourited =
         </div>
       </div>
       {editingId && (
-        <div className="scm-modal-backdrop" onClick={closeEdit} role="presentation">
+        <div className="scm-modal-backdrop scm-edit-backdrop" onClick={closeEdit} role="presentation">
           <div
-            className="scm-modal"
+            className="scm-modal scm-edit-modal"
             role="dialog"
             aria-modal="true"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="scm-modal__header">
               <h4 className="fw-semibold mb-0">Update Contact</h4>
-              <button className="btn btn-sm btn-ghost" type="button" onClick={closeEdit}>
-                <FontAwesomeIcon icon={faXmark} />
+              <button className="btn btn-sm btn-ghost scm-modal-close-btn" type="button" onClick={closeEdit}>
+                <Icon name="xmark" />
               </button>
             </div>
             <UpdateContactForm
-              initialData={fullContactMap?.[editingId]}
+              key={editingId}
+              initialData={editingContact}
               onCancel={closeEdit}
               onSubmit={handleUpdateContact}
             />
           </div>
         </div>
       )}
+      {deleteConfirmContact &&
+        createPortal(
+          <div
+            className="scm-modal-backdrop scm-delete-backdrop"
+            onClick={closeDeleteConfirm}
+            role="presentation"
+          >
+            <div
+              className="scm-modal scm-delete-confirm-modal"
+              role="dialog"
+              aria-modal="true"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="scm-modal__header">
+                <h5 className="fw-semibold mb-0">Delete Contact</h5>
+                <button className="btn btn-sm btn-ghost scm-modal-close-btn" type="button" onClick={closeDeleteConfirm}>
+                  <Icon name="xmark" />
+                </button>
+              </div>
+              <p className="mb-3">
+                Delete <span className="fw-semibold">{deleteConfirmContact.name}</span> permanently?
+              </p>
+              <div className="d-flex justify-content-end gap-2">
+                <button className="btn btn-outline-primary edit_contact_btn" type="button" onClick={closeDeleteConfirm}>
+                  Cancel
+                </button>
+                <button className="btn btn-outline-danger delete_contact_btn" type="button" onClick={confirmDeleteContact}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>,
+          portalRoot,
+        )}
     </div>
   )
 }

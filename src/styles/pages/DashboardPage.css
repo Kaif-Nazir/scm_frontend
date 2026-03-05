@@ -23,8 +23,8 @@
 .btn.scm-dashboard-cta {
   border: none;
   color: #0ef;
-  border-left: 1px solid cyan;
-  border-right: 1px solid cyan;
+  border-left: 2.5px solid cyan;
+  border-right: 2.5px solid cyan;
   font-weight: 600 !important;
   transition:
     color 0.35s ease,
@@ -43,7 +43,7 @@
 }
 
 .btn.btn-outline-primary.scm-dashboard-cta:hover {
-  background-color: #26d2b1 !important;
+  background-color: #31b59c !important;
   border-color: transparent !important;
 }
 
@@ -56,12 +56,12 @@
   height: 100%;
   background: linear-gradient(
     120deg,
-    #bffbff,
-    #5ad6df
+    #8ff1f8,
+    #00e6f4
   );
   transform: skewX(25deg);
   background-size: 300% 100%;
-  animation: color-shift 3s reverse linear infinite;
+  animation: color-shift 3.5s reverse linear infinite;
   z-index: -1;
   transition: width 0.5s linear; /* hover */
 }
@@ -79,29 +79,6 @@
   width: 90%;
 }
 
-.app--light .scm-dashboard-cta {
-  color: var(--color-ink);
-  border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
-  background: linear-gradient(
-    120deg,
-    color-mix(in srgb, var(--color-accent) 10%, transparent),
-    color-mix(in srgb, var(--color-accent) 3%, transparent)
-  );
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
-}
-
-.app--light .scm-dashboard-cta::before {
-  background: linear-gradient(
-    120deg,
-    color-mix(in srgb, var(--color-accent) 45%, #ffffff),
-    color-mix(in srgb, var(--color-accent) 18%, #ffffff)
-  );
-}
-
-.app--light .btn.scm-dashboard-cta:hover {
-  color: #1b1a17 !important;
-  box-shadow: 0 0 10px rgba(47, 143, 131, 0.2), 0 10px 20px rgba(0, 0, 0, 0.14);
-}
 
 .card.scm-stat {
   background-color: var(--color-surface) !important;
@@ -152,10 +129,4 @@
   padding: 0.35rem 1.25rem;
   display: inline-block;
   box-shadow: 0 0 12px rgba(0, 238, 255, 0.3);
-}
-
-.app--light .scm-dashboard-clock {
-  color: #000;
-  border-color: rgba(0, 0, 0, 0.25);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
 }

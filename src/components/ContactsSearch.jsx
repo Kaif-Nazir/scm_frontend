@@ -3,9 +3,11 @@ import { useEffect, useState } from 'react'
 function ContactsSearch({
   onSearch,
   label = 'Search contacts',
-  placeholder = 'Search by name, phone, or email',
+  placeholder = 'Search by name or phone',
   debounceMs = 250,
   inputId = 'contact-search',
+  className = '',
+  inputClassName = '',
 }) {
   const [term, setTerm] = useState('')
 
@@ -17,13 +19,13 @@ function ContactsSearch({
   }, [term, debounceMs, onSearch])
 
   return (
-    <div className="mb-3">
+    <div className={`mb-3 ${className}`.trim()}>
       <label className="form-label fw-semibold" htmlFor={inputId}>
         {label}
       </label>
       <input
         id={inputId}
-        className="form-control"
+        className={`form-control ${inputClassName}`.trim()}
         type="search"
         placeholder={placeholder}
         value={term}

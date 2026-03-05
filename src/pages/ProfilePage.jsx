@@ -1,14 +1,27 @@
 import { useEffect, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEye, faEyeSlash, faXmark } from '@fortawesome/free-solid-svg-icons'
+import Icon from '../components/Icon.jsx'
 import apiClient from '../api/client.js'
+import { useAlert } from '../context/AlertContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
+import '../styles/pages/ProfilePage.css'
+
+const resolveHasPassword = (payload, fallback = false) => {
+  const rawValue = payload?.hasPassword
+  if (typeof rawValue === 'boolean') return rawValue
+  if (typeof rawValue === 'string') return rawValue.trim().toLowerCase() === 'true'
+  if (typeof rawValue === 'number') return rawValue === 1
+  return fallback
+}
 
 function ProfilePage({ action, onActionHandled }) {
+  const { success, error: showError } = useAlert()
+  const { setUser, logout } = useAuth()
 
   const [profile, setProfile] = useState({
     name: '',
     email: '',
     phoneNumber: '',
+    hasPassword: true,
   })
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -32,25 +45,36 @@ function ProfilePage({ action, onActionHandled }) {
   })
   const [deleteEmail, setDeleteEmail] = useState('')
   const [deleteError, setDeleteError] = useState('')
+  const minPasswordLength = 6
+  const requiresInitialPassword = profile.hasPassword === false
   const deleteMatch = deleteEmail.trim().toLowerCase() === profile.email.toLowerCase()
+  const isPasswordFormComplete = requiresInitialPassword
+    ? [passwordForm.newPassword, passwordForm.confirmPassword].every((value) => value.trim().length > 0)
+    : [passwordForm.oldPassword, passwordForm.newPassword, passwordForm.confirmPassword].every((value) => value.trim().length > 0)
+  const passwordsMatch = passwordForm.newPassword === passwordForm.confirmPassword
+  const hasMinPasswordLength = passwordForm.newPassword.trim().length >= minPasswordLength
+  const canSubmitPassword = isPasswordFormComplete && passwordsMatch && hasMinPasswordLength
 
   useEffect(() => {
     let isMounted = true
     const fetchProfile = async () => {
       try {
         const response = await apiClient.get('/auth/getUser')
+        const payload = response?.data || {}
         if (isMounted) {
           setProfile({
-            name: response.data?.name || '',
-            email: response.data?.email || '',
-            phoneNumber: response.data?.phoneNumber || '',
+            name: payload?.name || '',
+            email: payload?.email || '',
+            phoneNumber: payload?.phoneNumber || '',
+            hasPassword: resolveHasPassword(payload, false),
           })
           setLoadError('')
         }
-        console.log(response);
       } catch (error) {
         if (isMounted) {
-          setLoadError(error?.response?.data?.message || 'Failed to load profile.')
+          const message = error?.response?.data?.message || 'Failed to load profile.'
+          setLoadError(message)
+          showError(message)
         }
       } finally {
         if (isMounted) {
@@ -62,7 +86,7 @@ function ProfilePage({ action, onActionHandled }) {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [showError])
 
   const openEdit = () => {
     setForm({
@@ -90,35 +114,71 @@ function ProfilePage({ action, onActionHandled }) {
   }
 
   useEffect(() => {
-    if (action === 'change-password') {
-      openPasswordModal()
-      onActionHandled?.()
-    }
-  }, [action, onActionHandled])
+    if (action !== 'change-password') return
+    if (isLoading) return
+    openPasswordModal()
+    onActionHandled?.()
+  }, [action, isLoading, onActionHandled])
 
   const handlePasswordChange = (event) => {
     const { name, value } = event.target
+    if (passwordError) {
+      setPasswordError('')
+    }
     setPasswordForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handlePasswordSubmit = (event) => {
+  const handlePasswordSubmit = async (event) => {
     event.preventDefault()
+    if (!hasMinPasswordLength) {
+      const message = `New password must be at least ${minPasswordLength} characters.`
+      setPasswordError(message)
+      showError(message)
+      return
+    }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordError('Passwords do not match.')
+      const message = 'Passwords do not match.'
+      setPasswordError(message)
+      showError(message)
+      return
+    }
+    if (!requiresInitialPassword && !passwordForm.oldPassword.trim()) {
+      const message = 'Current password is required.'
+      setPasswordError(message)
+      showError(message)
       return
     }
     setPasswordError('')
-    apiClient
-      .patch('/auth/users/change-password', {
-        currentPassword: passwordForm.oldPassword,
-        newPassword: passwordForm.newPassword,
-      })
-      .then(() => {
-        setIsChangingPassword(false)
-      })
-      .catch((error) => {
-        setPasswordError(error?.response?.data?.message || 'Failed to update password.')
-      })
+    try {
+      if (requiresInitialPassword) {
+        await apiClient.patch('/auth/users/set-password', {
+          newPassword: passwordForm.newPassword,
+        })
+      } else {
+        await apiClient.patch('/auth/users/change-password', {
+          currentPassword: passwordForm.oldPassword,
+          newPassword: passwordForm.newPassword,
+        })
+      }
+      setProfile((prev) => ({ ...prev, hasPassword: true }))
+      setUser((prevUser) => (prevUser ? { ...prevUser, hasPassword: true } : prevUser))
+      setIsChangingPassword(false)
+      success(requiresInitialPassword ? 'Password set successfully.' : 'Password updated successfully.')
+    } catch (error) {
+      const status = error?.response?.status
+      const serverMessage = error?.response?.data?.message
+      const rawMessage = typeof serverMessage === 'string' ? serverMessage : ''
+      const looksLikeWrongPassword =
+        status === 401 ||
+        status === 403 ||
+        rawMessage.toLowerCase().includes('current password') ||
+        rawMessage.toLowerCase().includes('badrequestexception')
+      const message = !requiresInitialPassword && looksLikeWrongPassword
+        ? 'Password is incorrect. Try again.'
+        : (serverMessage || 'Failed to update password.')
+      setPasswordError(message)
+      showError(message)
+    }
   }
 
   const openDeleteModal = () => {
@@ -127,21 +187,25 @@ function ProfilePage({ action, onActionHandled }) {
     setIsDeleting(true)
   }
 
-  const handleDeleteSubmit = (event) => {
+  const handleDeleteSubmit = async (event) => {
     event.preventDefault()
     if (!deleteMatch) {
-      setDeleteError('Email does not match.')
+      const message = 'Email does not match.'
+      setDeleteError(message)
+      showError(message)
       return
     }
     setDeleteError('')
-    apiClient
-      .delete('/auth/delete')
-      .then(() => {
-        setIsDeleting(false)
-      })
-      .catch((error) => {
-        setDeleteError(error?.response?.data?.message || 'Failed to delete account.')
-      })
+    try {
+      await apiClient.delete('/auth/deleteUser')
+      setIsDeleting(false)
+      success('Account deleted successfully.')
+      logout()
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to delete account.'
+      setDeleteError(message)
+      showError(message)
+    }
   }
 
   const handleProfileSubmit = async (event) => {
@@ -157,10 +221,21 @@ function ProfilePage({ action, onActionHandled }) {
         name: updated.name ?? form.name,
         phoneNumber: updated.phoneNumber ?? form.phoneNumber,
       }))
+      setUser((prevUser) =>
+        ({
+          ...(prevUser || {}),
+          name: updated.name ?? form.name,
+          phoneNumber: updated.phoneNumber ?? form.phoneNumber,
+          email: (prevUser && prevUser.email) || profile.email || '',
+        }),
+      )
       setUpdateError('')
       setIsEditing(false)
+      success('Profile updated successfully.')
     } catch (error) {
-      setUpdateError(error?.response?.data?.message || 'Failed to update profile.')
+      const message = error?.response?.data?.message || 'Failed to update profile.'
+      setUpdateError(message)
+      showError(message)
     }
   }
 
@@ -170,8 +245,9 @@ function ProfilePage({ action, onActionHandled }) {
       ) : loadError ? (
         <div className="text-danger">{loadError}</div>
       ) : (
-      <div className="card shadow-sm border-0">
-        <div className="card-body p-4">
+      <div className="scm-profile-page">
+        <div className="card shadow-sm border-0 scm-profile-card">
+          <div className="card-body p-4 scm-profile-card__body">
           <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-4">
             <div>
               <h3 className="fw-semibold mb-1">Profile</h3>
@@ -181,33 +257,33 @@ function ProfilePage({ action, onActionHandled }) {
           <div className="row g-3">
             <div className="col-12 col-md-6">
               <div className="text-muted small">Name</div>
-              <div className="fw-semibold">{profile.name}</div>
+              <div className="fw-semibold scm-profile-value">{profile.name}</div>
             </div>
             <div className="col-12 col-md-6">
               <div className="text-muted small">Email</div>
-              <div className="fw-semibold">{profile.email}</div>
+              <div className="fw-semibold scm-profile-value">{profile.email}</div>
             </div>
             <div className="col-12 col-md-6">
               <div className="text-muted small">Phone Number</div>
-              <div className="fw-semibold">{profile.phoneNumber}</div>
+              <div className="fw-semibold scm-profile-value">{profile.phoneNumber}</div>
             </div>
             <div className="col-12 d-flex flex-wrap gap-2 pt-2">
-              <button className="btn btn-primary" type="button" onClick={openEdit}>
+              <button className="btn btn-outline-primary profile_save_btn profile-action-btn" type="button" onClick={openEdit}>
                 Update Details
               </button>
-              <button className="btn btn-outline-secondary" type="button" onClick={openPasswordModal}>
-                Change Password
+              <button className="btn btn-outline-secondary profile_change_password" type="button" onClick={openPasswordModal}>
+                {requiresInitialPassword ? 'Set Password' : 'Change Password'}
               </button>
-              <button className="btn btn-outline-danger" type="button" onClick={openDeleteModal}>
+              <button className="btn btn-outline-danger profile_clear_btn profile-action-btn" type="button" onClick={openDeleteModal}>
                 Delete Account
               </button>
             </div>
           </div>
-        </div>
+          </div>
         {isEditing && (
-            <div className="scm-modal-backdrop" onClick={() => setIsEditing(false)} role="presentation">
+            <div className="scm-modal-backdrop scm-profile-backdrop" onClick={() => setIsEditing(false)} role="presentation">
               <div
-                  className="scm-modal"
+                  className="scm-modal scm-edit-modal scm-profile-modal"
                   role="dialog"
                   aria-modal="true"
                   onClick={(event) => event.stopPropagation()}
@@ -215,14 +291,14 @@ function ProfilePage({ action, onActionHandled }) {
                 <div className="scm-modal__header">
                   <h4 className="fw-semibold mb-0">Update Details</h4>
                   <button
-                      className="btn btn-sm btn-ghost"
+                      className="btn btn-sm btn-ghost scm-modal-close-btn"
                       type="button"
                       onClick={() => setIsEditing(false)}
                   >
-                    <FontAwesomeIcon icon={faXmark}/>
+                    <Icon name="xmark" />
                   </button>
                 </div>
-                <form className="row g-3" onSubmit={handleProfileSubmit}>
+                <form className="row g-3 scm-update-form" onSubmit={handleProfileSubmit}>
                   <div className="col-12 col-md-6">
                     <label className="form-label fw-semibold" htmlFor="profile-edit-name">
                       Name
@@ -257,10 +333,10 @@ function ProfilePage({ action, onActionHandled }) {
                     </div>
                   )}
                   <div className="col-12 d-flex flex-wrap gap-2 pt-2">
-                    <button className="btn btn-primary" type="submit">
+                    <button className="btn btn-outline-primary profile_save_btn" type="submit">
                       Save Changes
                     </button>
-                    <button className="btn btn-ghost" type="button" onClick={() => setIsEditing(false)}>
+                    <button className="btn btn-outline-danger profile_clear_btn" type="button" onClick={() => setIsEditing(false)}>
                       Cancel
                     </button>
                   </div>
@@ -270,55 +346,57 @@ function ProfilePage({ action, onActionHandled }) {
         )}
         {isChangingPassword && (
             <div
-                className="scm-modal-backdrop"
+                className="scm-modal-backdrop scm-profile-backdrop"
                 onClick={() => setIsChangingPassword(false)}
                 role="presentation"
             >
               <div
-                  className="scm-modal"
+                  className="scm-modal scm-edit-modal scm-profile-modal"
                   role="dialog"
                   aria-modal="true"
                   onClick={(event) => event.stopPropagation()}
               >
                 <div className="scm-modal__header">
-                  <h4 className="fw-semibold mb-0">Change Password</h4>
+                  <h4 className="fw-semibold mb-0">{requiresInitialPassword ? 'Set Password' : 'Change Password'}</h4>
                   <button
-                      className="btn btn-sm btn-ghost"
+                      className="btn btn-sm btn-ghost scm-modal-close-btn"
                       type="button"
                       onClick={() => setIsChangingPassword(false)}
                   >
-                    <FontAwesomeIcon icon={faXmark}/>
+                    <Icon name="xmark" />
                   </button>
                 </div>
-                <form className="row g-3" onSubmit={handlePasswordSubmit}>
-                  <div className="col-12">
-                    <label className="form-label fw-semibold" htmlFor="profile-old-password">
-                      Old Password
-                    </label>
-                    <div className="input-group">
-                      <input
-                          className="form-control"
-                          id="profile-old-password"
-                          name="oldPassword"
-                          type={showPassword.oldPassword ? 'text' : 'password'}
-                          value={passwordForm.oldPassword}
-                          onChange={handlePasswordChange}
-                      />
-                      <button
-                          className="btn btn-outline-secondary"
-                          type="button"
-                          onClick={() =>
-                              setShowPassword((prev) => ({
-                                ...prev,
-                                oldPassword: !prev.oldPassword,
-                              }))
-                          }
-                          aria-label={showPassword.oldPassword ? 'Hide password' : 'Show password'}
-                      >
-                        <FontAwesomeIcon icon={showPassword.oldPassword ? faEyeSlash : faEye}/>
-                      </button>
+                <form className="row g-3 scm-update-form" onSubmit={handlePasswordSubmit}>
+                  {!requiresInitialPassword && (
+                    <div className="col-12">
+                      <label className="form-label fw-semibold" htmlFor="profile-old-password">
+                        Old Password
+                      </label>
+                      <div className="input-group">
+                        <input
+                            className="form-control"
+                            id="profile-old-password"
+                            name="oldPassword"
+                            type={showPassword.oldPassword ? 'text' : 'password'}
+                            value={passwordForm.oldPassword}
+                            onChange={handlePasswordChange}
+                        />
+                        <button
+                            className="btn btn-outline-secondary profile-password-toggle"
+                            type="button"
+                            onClick={() =>
+                                setShowPassword((prev) => ({
+                                  ...prev,
+                                  oldPassword: !prev.oldPassword,
+                                }))
+                            }
+                            aria-label={showPassword.oldPassword ? 'Hide password' : 'Show password'}
+                        >
+                          <Icon name={showPassword.oldPassword ? 'eye-slash' : 'eye'} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                   <div className="col-12">
                     <label className="form-label fw-semibold" htmlFor="profile-new-password">
                       New Password
@@ -329,11 +407,12 @@ function ProfilePage({ action, onActionHandled }) {
                           id="profile-new-password"
                           name="newPassword"
                           type={showPassword.newPassword ? 'text' : 'password'}
+                          minLength={minPasswordLength}
                           value={passwordForm.newPassword}
                           onChange={handlePasswordChange}
                       />
                       <button
-                          className="btn btn-outline-secondary"
+                          className="btn btn-outline-secondary profile-password-toggle"
                           type="button"
                           onClick={() =>
                               setShowPassword((prev) => ({
@@ -343,7 +422,7 @@ function ProfilePage({ action, onActionHandled }) {
                           }
                           aria-label={showPassword.newPassword ? 'Hide password' : 'Show password'}
                       >
-                        <FontAwesomeIcon icon={showPassword.newPassword ? faEyeSlash : faEye}/>
+                        <Icon name={showPassword.newPassword ? 'eye-slash' : 'eye'} />
                       </button>
                     </div>
                   </div>
@@ -360,13 +439,22 @@ function ProfilePage({ action, onActionHandled }) {
                         onChange={handlePasswordChange}
                     />
                     {passwordError && <div className="text-danger small mt-2">{passwordError}</div>}
+                    <div className="text-muted small mt-2">
+                      {requiresInitialPassword
+                        ? `Set a password with at least ${minPasswordLength} characters.`
+                        : `To enable this button, fill all fields. New password must be at least ${minPasswordLength} characters.`}
+                    </div>
                   </div>
                   <div className="col-12 d-flex flex-wrap gap-2 pt-2">
-                    <button className="btn btn-primary" type="submit">
-                      Update Password
+                    <button
+                      className="btn btn-outline-primary profile_save_btn"
+                      type="submit"
+                      disabled={!canSubmitPassword}
+                    >
+                      {requiresInitialPassword ? 'Set Password' : 'Update Password'}
                     </button>
                     <button
-                        className="btn btn-ghost"
+                        className="btn btn-outline-danger profile_clear_btn"
                         type="button"
                         onClick={() => setIsChangingPassword(false)}
                     >
@@ -378,9 +466,9 @@ function ProfilePage({ action, onActionHandled }) {
             </div>
         )}
         {isDeleting && (
-            <div className="scm-modal-backdrop" onClick={() => setIsDeleting(false)} role="presentation">
+            <div className="scm-modal-backdrop scm-profile-backdrop" onClick={() => setIsDeleting(false)} role="presentation">
               <div
-                  className="scm-modal"
+                  className="scm-modal scm-edit-modal scm-profile-modal"
                   role="dialog"
                   aria-modal="true"
                   onClick={(event) => event.stopPropagation()}
@@ -388,17 +476,17 @@ function ProfilePage({ action, onActionHandled }) {
                 <div className="scm-modal__header">
                   <h4 className="fw-semibold mb-0">Delete Account</h4>
                   <button
-                      className="btn btn-sm btn-ghost"
+                      className="btn btn-sm btn-ghost scm-modal-close-btn"
                       type="button"
                       onClick={() => setIsDeleting(false)}
                   >
-                    <FontAwesomeIcon icon={faXmark}/>
+                    <Icon name="xmark" />
                   </button>
                 </div>
                 <p className="text-muted">
                   Type your email to confirm permanent deletion of your account.
                 </p>
-                <form className="row g-3" onSubmit={handleDeleteSubmit}>
+                <form className="row g-3 scm-update-form" onSubmit={handleDeleteSubmit}>
                   <div className="col-12">
                     <label className="form-label fw-semibold" htmlFor="profile-delete-email">
                       Email
@@ -418,13 +506,13 @@ function ProfilePage({ action, onActionHandled }) {
                   </div>
                   <div className="col-12 d-flex flex-wrap gap-2 pt-2">
                     <button
-                        className="btn btn-outline-danger"
+                        className="btn btn-outline-danger profile_clear_btn"
                         type="submit"
                         disabled={!deleteMatch}
                     >
                       Delete Account
                     </button>
-                    <button className="btn btn-ghost" type="button" onClick={() => setIsDeleting(false)}>
+                    <button className="btn btn-outline-primary profile_save_btn" type="button" onClick={() => setIsDeleting(false)}>
                       Cancel
                     </button>
                   </div>
@@ -432,6 +520,7 @@ function ProfilePage({ action, onActionHandled }) {
               </div>
             </div>
         )}
+        </div>
       </div>
       )
   )

@@ -1,26 +1,19 @@
 .scm-add-contact {
-  max-width: 1040px;
+  max-width: 1140px;
   margin: 0 auto;
 }
 
-.scm-add-contact__status {
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-border) 85%, transparent);
-}
-
 .card.add-contact-card {
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(6px);
+  background-color: transparent;
+  backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(6px);
   border-radius: 43px;
   border: 1px solid rgba(0, 255, 255, 0.5);
 }
 
+
 .add-contact-form .form-control {
-  background-color: rgba(255, 255, 255, 0.06) !important;
+  background-color: rgba(255, 255, 255, 0.02) !important;
   border: 1px solid rgba(19, 255, 70, 0.35);
   color: #c4ffff;
   border-radius: 15px;
@@ -28,6 +21,8 @@
   padding: 0.45rem .9rem;
   min-height: 36px;
   font-weight: 450;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 14px 28px rgba(0, 0, 0, 0.38);
+  transition: border-color 0.85s ease, box-shadow 0.85s ease, background 0.85s ease, transform 0.2s ease;
 }
 
 .add-contact-form .form-label {
@@ -36,14 +31,22 @@
 }
 
 .add-contact-form textarea.form-control {
-  min-height: 70px;
+  min-height: 80px;
 }
 
 .add-contact-form .form-control:focus {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  border-color: #00ffff;
-  box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+  background: rgba(109, 188, 198, 0.2) !important;
+  border-color: #00ffff !important;
+  border-width: 1px;
   color: #c4ffff;
+  outline: none;
+}
+
+.add-contact-form .form-control:focus-visible {
+  outline: none;
+  border-color: #00ffff !important;
+  border-width: 1.6px;
+  box-shadow: 0 0 0 1px rgba(0, 255, 255, 0.28), 0 10px 24px rgba(0, 255, 255, 0.14);
 }
 
 .add-contact-form .form-control:-webkit-autofill,
@@ -55,6 +58,8 @@
 }
 
 .save_contact_btn {
+  position: relative;
+  isolation: isolate;
   font-size: 0.9rem;
   padding: 8px 22px;
   letter-spacing: 0.06em;
@@ -72,8 +77,8 @@
 .btn.save_contact_btn {
   border: none;
   color: #0ef;
-  border-left: 1px solid cyan;
-  border-right: 1px solid cyan;
+  border-left: 2.5px solid cyan;
+  border-right: 2.5px solid cyan;
   font-weight: 600 !important;
   transition: color 0.35s ease, transform 0.25s ease, box-shadow 0.35s ease,
     background-color 0.35s ease;
@@ -87,7 +92,7 @@
 }
 
 .btn.btn-outline-primary.save_contact_btn:hover {
-  background-color: #26d2b1 !important;
+  background-color: #29b299 !important;
   border-color: transparent !important;
 }
 
@@ -110,6 +115,8 @@
 }
 
 .clear_contact_btn {
+  position: relative;
+  isolation: isolate;
   font-size: 0.9rem;
   padding: 8px 22px;
   letter-spacing: 0.06em;
@@ -126,9 +133,9 @@
 
 .btn.clear_contact_btn {
   border: none;
-  color: #d11b1b;
-  border-left: 2px solid #ff0000;
-  border-right: 2px solid #ff0000;
+  color: #ff0000;
+  border-left: 2.5px solid #ff0000;
+  border-right: 2.5px solid #ff0000;
   font-weight: 600 !important;
   transition: color 0.35s ease, transform 0.25s ease, box-shadow 0.35s ease,
     background-color 0.35s ease;
@@ -162,62 +169,6 @@
 
 .clear_contact_btn:hover::before {
   width: 110%;
-}
-
-.add-contact__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.55rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid rgba(19, 255, 70, 0.35);
-  background: transparent;
-}
-
-.add-contact__toggle-input {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  appearance: none;
-  background: rgba(0, 255, 255, 0.15);
-  border-radius: 999px;
-  border: 1px solid rgba(0, 255, 255, 0.35);
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-.add-contact__toggle-input::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: #ffffff;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease;
-}
-
-.add-contact__toggle-input:checked {
-  background: rgb(0, 255, 255);
-  border-color: rgba(0, 255, 255, 0.8);
-}
-
-.add-contact__toggle-input:checked::after {
-  transform: translateX(20px);
-  background: #000000;
-}
-
-.add-contact__toggle-input:focus-visible {
-  outline: 2px solid rgba(0, 255, 255, 0.6);
-  outline-offset: 2px;
-}
-
-.add-contact__toggle-label {
-  font-weight: 600;
-  color: var(--color-ink);
-  cursor: pointer;
 }
 
 .add-contact__actions {

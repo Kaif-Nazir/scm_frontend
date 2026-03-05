@@ -1,24 +1,14 @@
 import { useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faChartSimple,
-  faChevronLeft,
-  faChevronRight,
-  faHeart,
-  faListUl,
-  faPlus,
-  faRightFromBracket,
-  faUser,
-} from '@fortawesome/free-solid-svg-icons'
+import Icon from './Icon.jsx'
 import '../styles/components/Sidebar.css'
 
 const navItems = [
-  { label: 'Dashboard', icon: faChartSimple },
-  { label: 'Add Contact', icon: faPlus },
-  { label: 'View Contacts', icon: faListUl },
-  { label: 'Favourites', icon: faHeart },
-  { label: 'Profile', icon: faUser },
-  { label: 'Logout', icon: faRightFromBracket },
+  { label: 'Dashboard', icon: 'chart' },
+  { label: 'Add Contact', icon: 'plus' },
+  { label: 'View Contacts', icon: 'list' },
+  { label: 'Favourites', icon: 'heart' },
+  { label: 'Profile', icon: 'user' },
+  { label: 'Logout', icon: 'logout' },
 ]
 
 function Sidebar({ activeItem, onSelect }) {
@@ -29,12 +19,12 @@ function Sidebar({ activeItem, onSelect }) {
       <div className="scm-sidebar__header">
         <span className="scm-sidebar__title">Menu</span>
         <button
-          className="btn btn-sm btn-theme"
+          className="btn btn-sm btn-ui"
           type="button"
           onClick={() => setCollapsed((prev) => !prev)}
           aria-label="Toggle sidebar"
         >
-          <FontAwesomeIcon icon={collapsed ? faChevronRight : faChevronLeft} />
+          <Icon name={collapsed ? 'chevron-right' : 'chevron-left'} />
         </button>
       </div>
       <nav className="scm-sidebar__nav">
@@ -46,7 +36,7 @@ function Sidebar({ activeItem, onSelect }) {
             onClick={() => onSelect?.(item.label)}
           >
             <span className="scm-sidebar__icon">
-              <FontAwesomeIcon icon={item.icon} />
+              <Icon name={item.icon} />
             </span>
             <span className="scm-sidebar__label">{item.label}</span>
           </button>

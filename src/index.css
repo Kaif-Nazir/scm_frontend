@@ -2,15 +2,23 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #1b1a17;
-  background-color: #f8f6f2;
+  color: #f5f2ee;
+  background-color: #14110f;
 
-  --color-primary: #e15f3a;
-  --color-accent: #2f8f83;
-  --color-ink: #1b1a17;
-  --color-muted: #5b524a;
-  --color-surface: #fff6ef;
-  --color-border: #e8d9cc;
+  --color-primary: #ff7a59;
+  --color-accent: #17caa5;
+  --color-green: #00f0d5;
+  --color-ink: #f5f2ee;
+  --color-muted: #c4beb7;
+  --color-surface: #1f1b18;
+  --color-border: #3b332d;
+  --color-page: #14110f;
+
+  --bs-body-color: var(--color-ink);
+  --bs-body-bg: var(--color-page);
+  --bs-border-color: var(--color-border);
+  --bs-secondary-color: var(--color-muted);
+  --bs-heading-color: var(--color-ink);
 }
 
 *,
@@ -38,5 +46,4 @@ button {
 #root {
   min-height: 100vh;
 }
-
 

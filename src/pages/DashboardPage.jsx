@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import apiClient from '../api/client.js'
+import { useAlert } from '../context/AlertContext.jsx'
 import '../styles/pages/DashboardPage.css'
 
 function DashboardPage({ user, onStartAddContact }) {
+  const { error: showError } = useAlert()
   const [stats, setStats] = useState({ totalContacts: 0, totalFavourites: 0 })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -19,7 +21,9 @@ function DashboardPage({ user, onStartAddContact }) {
         }
       } catch (err) {
         if (isMounted) {
-          setError(err?.response?.data?.message || 'Failed to load stats.')
+          const message = err?.response?.data?.message || 'Failed to load stats.'
+          setError(message)
+          showError(message)
         }
       } finally {
         if (isMounted) {
@@ -31,7 +35,7 @@ function DashboardPage({ user, onStartAddContact }) {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [showError])
 
   useEffect(() => {
     const timer = setInterval(() => {

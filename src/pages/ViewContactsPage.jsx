@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import ContactsList from '../components/ContactsList.jsx'
 import apiClient from '../api/client.js'
+import { useAlert } from '../context/AlertContext.jsx'
 
 function ViewContactsPage() {
+  const { error: showError } = useAlert()
   const [contacts, setContacts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -18,7 +20,9 @@ function ViewContactsPage() {
         }
       } catch (err) {
         if (isMounted) {
-          setError(err?.response?.data?.message || 'Failed to load contacts.')
+          const message = err?.response?.data?.message || 'Failed to load contacts.'
+          setError(message)
+          showError(message)
         }
       } finally {
         if (isMounted) {
@@ -30,7 +34,7 @@ function ViewContactsPage() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [showError])
 
   if (isLoading) {
     return <div className="text-muted">Loading contacts...</div>

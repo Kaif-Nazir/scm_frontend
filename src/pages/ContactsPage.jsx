@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { useMemo, useState } from 'react'
+import Icon from '../components/Icon.jsx'
 import Sidebar from '../components/Sidebar.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useAppNav } from '../context/AppNavContext.jsx'
+import '../styles/pages/ContactsPage.css'
 import AddContactPage from './AddContactPage.jsx'
 import DashboardPage from './DashboardPage.jsx'
 import ViewContactsPage from './ViewContactsPage.jsx'
@@ -14,7 +14,8 @@ function ContactsPage() {
   const { user, logout } = useAuth()
   const { activeItem, setActiveItem, navAction, setNavAction } = useAppNav()
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
-  const [profileAction, setProfileAction] = useState(null)
+  const selectedItem = navAction === 'change-password' ? 'Profile' : activeItem
+  const profileAction = navAction === 'change-password' ? 'change-password' : null
 
   const handleSelect = (label) => {
     if (label === 'Logout') {
@@ -23,20 +24,6 @@ function ContactsPage() {
     }
     setActiveItem(label)
   }
-
-  useEffect(() => {
-    if (!navAction) {
-      return
-    }
-    if (navAction === 'logout') {
-      setIsLogoutOpen(true)
-    }
-    if (navAction === 'change-password') {
-      setActiveItem('Profile')
-      setProfileAction('change-password')
-    }
-    setNavAction(null)
-  }, [navAction, setActiveItem, setNavAction])
 
   const views = useMemo(
     () => ({
@@ -49,11 +36,13 @@ function ContactsPage() {
       Profile: (
         <ProfilePage
           action={profileAction}
-          onActionHandled={() => setProfileAction(null)}
+          onActionHandled={() => {
+            setNavAction(null)
+          }}
         />
       ),
     }),
-    [profileAction, setActiveItem, user],
+    [profileAction, setActiveItem, setNavAction, user],
   )
 
   return (
@@ -61,13 +50,20 @@ function ContactsPage() {
       <Sidebar activeItem={activeItem} onSelect={handleSelect} />
       <section className="scm-content">
         <div className="container py-4">
-          {views[activeItem] || views.Dashboard}
+          {views[selectedItem] || views.Dashboard}
         </div>
       </section>
-      {isLogoutOpen && (
-        <div className="scm-modal-backdrop" onClick={() => setIsLogoutOpen(false)} role="presentation">
+      {(isLogoutOpen || navAction === 'logout') && (
+        <div
+          className="scm-modal-backdrop scm-logout-backdrop"
+          onClick={() => {
+            setIsLogoutOpen(false)
+            setNavAction(null)
+          }}
+          role="presentation"
+        >
           <div
-            className="scm-modal"
+            className="scm-modal scm-logout-modal"
             role="dialog"
             aria-modal="true"
             onClick={(event) => event.stopPropagation()}
@@ -75,27 +71,34 @@ function ContactsPage() {
             <div className="scm-modal__header">
               <h4 className="fw-semibold mb-0">Log out</h4>
               <button
-                className="btn btn-sm btn-ghost"
+                className="btn btn-sm btn-ghost scm-modal-close-btn"
                 type="button"
-                onClick={() => setIsLogoutOpen(false)}
+                onClick={() => {
+                  setIsLogoutOpen(false)
+                  setNavAction(null)
+                }}
               >
-                <FontAwesomeIcon icon={faXmark} />
+                <Icon name="xmark" />
               </button>
             </div>
             <p className="text-muted mb-4">Are you sure you want to log out?</p>
             <div className="d-flex flex-wrap gap-2">
               <button
-                className="btn btn-outline-secondary"
+                className="btn btn-outline-secondary logout-cancel-btn"
                 type="button"
-                onClick={() => setIsLogoutOpen(false)}
+                onClick={() => {
+                  setIsLogoutOpen(false)
+                  setNavAction(null)
+                }}
               >
                 Cancel
               </button>
               <button
-                className="btn btn-primary"
+                className="btn btn-outline-primary logout-confirm-btn"
                 type="button"
                 onClick={() => {
                   setIsLogoutOpen(false)
+                  setNavAction(null)
                   logout()
                 }}
               >

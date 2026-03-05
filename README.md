@@ -1,16 +1,37 @@
-# React + Vite
+# Smart Contact Manager Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for Smart Contact Manager.
 
-Currently, two official plugins are available:
+## Environment
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Copy `.env.example` to `.env` and update values for your environment.
+- For Docker, `VITE_*` values are baked at image build time.
+- Social links use:
+  - `VITE_CONTACT_EMAIL`
+  - `VITE_GITHUB_REPO_URL`
+  - `VITE_LINKEDIN_URL`
 
-## React Compiler
+## Scripts
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `npm run dev` - start local development server
+- `npm run build` - create production build in `dist/`
+- `npm run preview` - preview production build locally
+- `npm run lint` - run ESLint
 
-## Expanding the ESLint configuration
+## Docker
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Build and run with Compose:
+  - `docker compose up --build -d`
+- Stop:
+  - `docker compose down`
+- App URL:
+  - `http://localhost:5173`
+
+## Size Optimization Notes
+
+- Keep only production dependencies in deployment images with:
+  - `npm ci --omit=dev`
+- Remove local build artifacts when not needed:
+  - `rm -rf dist`
+- If you need to reclaim local disk from packages:
+  - `rm -rf node_modules && npm ci`
