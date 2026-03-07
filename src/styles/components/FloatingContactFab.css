@@ -11,8 +11,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #06b6d4, #14b8a6);
-  color: #fff;
+  background: linear-gradient(260deg,#00f597 , #00e7e9);
+  color: #000;
   padding: 14px 22px;
   border-radius: 50px;
   cursor: pointer;
@@ -31,7 +31,6 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.45), rgba(20, 184, 166, 0.45));
   filter: blur(15px);
   opacity: 0;
   transition: opacity 0.35s ease;
@@ -43,28 +42,30 @@
 }
 
 .scm-contact-floating .button-content:hover {
-  background: linear-gradient(135deg, #14b8a6, #06b6d4);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
-  transform: translateY(-3px) scale(1.02);
+  background: linear-gradient(135deg, #08fbfb, #00ffe2);
+  color: #000;
+  box-shadow: 0 0 30px rgb(0, 255, 203);
+  transform: translateY(-3px) scale(1);
 }
 
 .scm-contact-floating .button-content:active {
   transform: translateY(-1px) scale(0.98);
 }
 
-.scm-contact-floating .text {
+.scm-contact-floating .scm-connect-text {
   font-size: 16px;
   font-weight: 700;
   margin-right: 10px;
   white-space: nowrap;
+  color: #000;
 }
 
-.scm-contact-floating .share-icon {
-  fill: currentColor;
+.scm-contact-floating .scm-connect-share-icon {
+  fill: #000;
   transition: transform 0.35s ease;
 }
 
-.scm-contact-floating.is-open .share-icon {
+.scm-contact-floating.is-open .scm-connect-share-icon {
   transform: rotate(180deg);
 }
 
@@ -187,7 +188,7 @@
     padding: 12px 18px;
   }
 
-  .scm-contact-floating .text {
+  .scm-contact-floating .scm-connect-text {
     font-size: 14px;
     margin-right: 8px;
   }
@@ -205,7 +206,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .scm-contact-floating .button-content,
-  .scm-contact-floating .share-icon,
+  .scm-contact-floating .scm-connect-share-icon,
   .scm-contact-floating .social-icon,
   .scm-contact-floating .tooltip-content {
     transition: none;

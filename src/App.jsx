@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './styles/global.css'
+import './styles/components/StartupNotice.css'
 import Navbar from './components/Navbar.jsx'
 import MainFront from './components/MainFront.jsx'
 import AuthModal from './components/AuthModal.jsx'
@@ -11,7 +12,7 @@ import AppNavContext from './context/AppNavContext.jsx'
 import { appEnv } from './config/env.js'
 import FloatingContactFab from './components/FloatingContactFab.jsx'
 
-function App() {
+function App({ showStartupLatencyNotice = false }) {
   const { isAuthenticated } = useAuth()
   const isResetPasswordRoute =
     Boolean(appEnv.resetPasswordPath) && window.location.pathname === appEnv.resetPasswordPath
@@ -21,6 +22,7 @@ function App() {
   const [authTab, setAuthTab] = useState('login')
   const [activeItem, setActiveItem] = useState('Dashboard')
   const [navAction, setNavAction] = useState(null)
+  const [isStartupInfoOpen, setIsStartupInfoOpen] = useState(showStartupLatencyNotice)
 
   useEffect(() => {
     const handleEscClose = (event) => {
@@ -46,9 +48,50 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    if (showStartupLatencyNotice) {
+      setIsStartupInfoOpen(true)
+    }
+  }, [showStartupLatencyNotice])
+
   return (
     <AppNavContext.Provider value={{ activeItem, setActiveItem, navAction, setNavAction }}>
       <div className={`app app--dark${isAuthenticated ? '' : ' app--login-clean'}`}>
+        {isStartupInfoOpen && (
+          <div
+            className="startup-notice-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="startup-notice-title"
+          >
+            <div className="startup-popup-card startup-card">
+              <div className="startup-popup-card2 startup-card2">
+                <button
+                  type="button"
+                  className="startup-notice-close"
+                  onClick={() => setIsStartupInfoOpen(false)}
+                  aria-label="Close startup notice"
+                >
+                  x
+                </button>
+                <h2 id="startup-notice-title" className="startup-notice-title">
+                  Backend Is Online
+                </h2>
+                <p className="startup-notice-text">
+                  Backend API requests may be slower due to Supabase database latency.
+                </p>
+                <button
+                  type="button"
+                  id="startup-notice-continue-btn"
+                  className="startup-notice-ack"
+                  onClick={() => setIsStartupInfoOpen(false)}
+                >
+                  <span id="startup-notice-continue-text">Continue</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <Navbar
           onOpenAuth={(tab) => {
             setAuthTab(tab || 'login')

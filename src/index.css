@@ -14,11 +14,16 @@
   --color-border: #3b332d;
   --color-page: #14110f;
 
-  --bs-body-color: var(--color-ink);
-  --bs-body-bg: var(--color-page);
-  --bs-border-color: var(--color-border);
-  --bs-secondary-color: var(--color-muted);
-  --bs-heading-color: var(--color-ink);
+  --bs-body-color: var(--color-ink) !important;
+  --bs-body-color-rgb: 245, 242, 238 !important;
+  --bs-emphasis-color: var(--color-ink) !important;
+  --bs-emphasis-color-rgb: 245, 242, 238 !important;
+  --bs-body-bg: var(--color-page) !important;
+  --bs-body-bg-rgb: 20, 17, 15 !important;
+  --bs-border-color: var(--color-border) !important;
+  --bs-secondary-color: var(--color-muted) !important;
+  --bs-secondary-color-rgb: 196, 190, 183 !important;
+  --bs-heading-color: var(--color-ink) !important;
 }
 
 *,
@@ -46,4 +51,3 @@ button {
 #root {
   min-height: 100vh;
 }
-

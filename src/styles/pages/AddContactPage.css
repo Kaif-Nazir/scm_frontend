@@ -9,8 +9,16 @@
   -webkit-backdrop-filter: blur(6px);
   border-radius: 43px;
   border: 1px solid rgba(0, 255, 255, 0.5);
+  color: #dffeff;
 }
 
+.card.add-contact-card h3 {
+  color: #e9ffff;
+}
+
+.card.add-contact-card .text-muted {
+  color: #9ec8cf !important;
+}
 
 .add-contact-form .form-control {
   background-color: rgba(255, 255, 255, 0.02) !important;
@@ -28,6 +36,11 @@
 .add-contact-form .form-label {
   margin-bottom: 11px !important;
   font-size: 0.95rem !important;
+  color: #d7ffff !important;
+}
+
+.add-contact-form .form-control::placeholder {
+  color: rgba(196, 255, 255, 0.45);
 }
 
 .add-contact-form textarea.form-control {
