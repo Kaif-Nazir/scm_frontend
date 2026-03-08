@@ -1,5 +1,58 @@
 # Smart Contact Manager Frontend
 
+## 🚀 Live Demo
+
+### 🌐 Launch the Application
+👉 **[Open Smart Contact Manager](https://scmfrontendmkn.vercel.app/)**
+
+**Direct URL (copy if link doesn't open):**
+https://scmfrontendmkn.vercel.app/
+
+
+---
+
+## 📸 Screenshots
+
+<table>
+<tr>
+<td align="center"><b>🏠 Home</b></td>
+<td align="center"><b>🔐 Login</b></td>
+<td align="center"><b>📝 Sign In</b></td>
+</tr>
+
+<tr>
+<td><img src="images/Main.png" width="400"></td>
+<td><img src="images/Login.png" width="400"></td>
+<td><img src="images/SignIn.png" width="400"></td>
+</tr>
+
+<tr>
+<td align="center"><b>📊 Dashboard</b></td>
+<td align="center"><b>👥 Contacts</b></td>
+<td align="center"><b>➕ Add Contact</b></td>
+</tr>
+
+<tr>
+<td><img src="images/Dashboard.png" width="400"></td>
+<td><img src="images/Contacts.png" width="400"></td>
+<td><img src="images/AddContact.png" width="400"></td>
+</tr>
+</table>
+
+
+---
+
+## 🛠 Backend Repository
+
+Smart Contact Manager backend source code:
+
+👉 **[SCM Backend Repository](https://github.com/Kaif-Nazir/scm_backend/)**
+
+**Direct URL (copy if link doesn't open):**
+https://github.com/Kaif-Nazir/scm_backend/
+
+---
+
 React + Vite frontend for Smart Contact Manager.
 
 ## Environment
