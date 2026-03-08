@@ -6,7 +6,7 @@ import MainFront from './components/MainFront.jsx'
 import AuthModal from './components/AuthModal.jsx'
 import ContactsPage from './pages/ContactsPage.jsx'
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx'
-import OAuth2CallbackPage from './pages/OAuth2CallbackPage.jsx'
+import OAuth2Callback from './pages/OAuth2Callback.jsx'
 import { useAuth } from './context/AuthContext.jsx'
 import AppNavContext from './context/AppNavContext.jsx'
 import { appEnv } from './config/env.js'
@@ -14,10 +14,11 @@ import FloatingContactFab from './components/FloatingContactFab.jsx'
 
 function App({ showStartupLatencyNotice = false }) {
   const { isAuthenticated } = useAuth()
+  const currentPath = (window.location.pathname || '/').replace(/\/+$/, '') || '/'
+  const oauthCallbackPath = (appEnv.oauthCallbackPath || '/oauth2/callback').replace(/\/+$/, '') || '/oauth2/callback'
   const isResetPasswordRoute =
     Boolean(appEnv.resetPasswordPath) && window.location.pathname === appEnv.resetPasswordPath
-  const isOAuthCallbackRoute =
-    Boolean(appEnv.oauthCallbackPath) && window.location.pathname === appEnv.oauthCallbackPath
+  const isOAuthCallbackRoute = currentPath === oauthCallbackPath
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [authTab, setAuthTab] = useState('login')
   const [activeItem, setActiveItem] = useState('Dashboard')
@@ -99,7 +100,7 @@ function App({ showStartupLatencyNotice = false }) {
           }}
         />
         {isOAuthCallbackRoute ? (
-          <OAuth2CallbackPage />
+          <OAuth2Callback />
         ) : isResetPasswordRoute ? (
           <ResetPasswordPage />
         ) : isAuthenticated ? (
